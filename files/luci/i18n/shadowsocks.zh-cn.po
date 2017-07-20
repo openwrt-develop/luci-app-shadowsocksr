@@ -159,3 +159,21 @@ msgstr "内网区域"
 
 msgid "Zone WAN"
 msgstr "外网区域"
+
+msgid "Protocol Plugin"
+msgstr "协议插件"
+
+msgid "Protocol Param"
+msgstr "协议参数"
+
+msgid "Parameter for protocol plugins. Leave blank if you're not sure."
+msgstr "设置协议插件的参数。如果不能确定请留空。"
+
+msgid "Obfuscation Plugin"
+msgstr "混淆插件"
+
+msgid "Obfuscation Param"
+msgstr "混淆参数"
+
+msgid "HTTP host header for HTTP obfuscation plugins. Leave blank if you're not sure."
+msgstr "设置HTTP混淆插件的访问主机名。如果不能确定请留空。"

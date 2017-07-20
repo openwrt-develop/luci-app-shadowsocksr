@@ -88,6 +88,20 @@ get_crypto_config() {
 	fi
 }
 
+
+get_ssr_config() {
+	local protocol_plugin=$(uci_get_by_name $1 protocol_plugin)
+	local protocol_param=$(uci_get_by_name $1 protocol_param)
+	local obfs_plugin=$(uci_get_by_name $1 obfs_plugin)
+	local obfs_param=$(uci_get_by_name $1 obfs_param)
+	if [ -n "$protocol_plugin" -a -n "$obfs_plugin" ]; then
+		echo "\"protocol\": \"$protocol_plugin\","
+		echo "    \"protocol_param\": \"$protocol_param\","
+		echo "    \"obfs\": \"$obfs_plugin\","
+		echo "    \"obfs_param\": \"$obfs_param\","
+	fi
+}
+
 gen_config_file() {
 	local config_file=/var/etc/$NAME.$1.json
 	cat <<-EOF >$config_file
@@ -96,6 +110,7 @@ gen_config_file() {
 		    "server_port": $(uci_get_by_name $1 server_port),
 		    $(get_crypto_config $1)
 		    "method": "$(uci_get_by_name $1 encrypt_method)",
+		    $(get_ssr_config $1)
 		    "local_address": "0.0.0.0",$(get_plugin_config $1)
 		    "timeout": $(uci_get_by_name $1 timeout 60),
 		    "reuse_port": true

@@ -1,4 +1,4 @@
-OpenWrt LuCI for Shadowsocks-libev
+OpenWrt LuCI for ShadowsocksR-libev
 ===
 
 [![Latest release][release_badge]][release_url]
@@ -6,8 +6,9 @@ OpenWrt LuCI for Shadowsocks-libev
 简介
 ---
 
-本软件包是 [shadowsocks-libev][openwrt-shadowsocks] 的 LuCI 控制界面,
+本软件包是 [shadowsocksr-libev][openwrt-shadowsocksr] 的 LuCI 控制界面,
 方便用户控制和使用「透明代理」「SOCKS5 代理」「端口转发」功能.  
+本软件包可兼容控制 shadowsocks-libev ，但不能和 luci-app-shadowsocksr 共存。  
 
 软件包文件结构:
 ```
@@ -42,8 +43,8 @@ OpenWrt LuCI for Shadowsocks-libev
 ---
 
 软件包的正常使用需要依赖 `iptables` 和 `ipset`.  
-软件包不显式依赖 `shadowsocks-libev`, 会根据用户添加的可执行文件启用相应的功能.  
-可执行文件可通过安装 [openwrt-shadowsocks][openwrt-shadowsocks] 中提供的 `shadowsocks-libev` 获得.  
+软件包不显式依赖 `shadowsocksr-libev`, 会根据用户添加的可执行文件启用相应的功能.  
+可执行文件可通过安装 [openwrt-shadowsocksr][openwrt-shadowsocksr] 中提供的 `shadowsocksr-libev` 获得.  
 只有当文件存在时, 相应的功能才可被使用, 并显示相应的 LuCI 设置界面.  
 
  可执行文件  | 可选 | 功能        | TCP协议 | UDP协议 
@@ -70,20 +71,20 @@ OpenWrt LuCI for Shadowsocks-libev
 tar xjf OpenWrt-SDK-ar71xx-for-linux-x86_64-gcc-4.8-linaro_uClibc-0.9.33.2.tar.bz2
 cd OpenWrt-SDK-ar71xx-*
 # Clone 项目
-git clone https://github.com/shadowsocks/luci-app-shadowsocks.git package/luci-app-shadowsocks
+git clone https://github.com/techotaku/luci-app-shadowsocksr.git package/luci-app-shadowsocksr
 # 编译 po2lmo (如果有po2lmo可跳过)
-pushd package/luci-app-shadowsocks/tools/po2lmo
+pushd package/luci-app-shadowsocksr/tools/po2lmo
 make && sudo make install
 popd
 # 选择要编译的包 LuCI -> 3. Applications
 make menuconfig
 # 开始编译
-make package/luci-app-shadowsocks/compile V=99
+make package/luci-app-shadowsocksr/compile V=99
 ```
 
- [release_badge]: https://img.shields.io/github/release/shadowsocks/luci-app-shadowsocks.svg
- [release_url]: https://github.com/shadowsocks/luci-app-shadowsocks/releases/latest
- [openwrt-shadowsocks]: https://github.com/shadowsocks/openwrt-shadowsocks
+ [release_badge]: https://img.shields.io/github/release/techotaku/luci-app-shadowsocksr.svg
+ [release_url]: https://github.com/techotaku/luci-app-shadowsocksr/releases/latest
+ [openwrt-shadowsocksr]: https://github.com/techotaku/ATGWWCRECITW/tree/master/shadowsocksr-lede
  [openwrt-sdk]: https://wiki.openwrt.org/doc/howto/obtain.firmware.sdk
  [ss-rules]: https://github.com/shadowsocks/luci-app-shadowsocks/wiki/Instruction-of-ss-rules
  [Use-UCI-system]: https://github.com/shadowsocks/luci-app-shadowsocks/wiki/Use-UCI-system

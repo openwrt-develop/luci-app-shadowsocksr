@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016-2017 Jian Chang <aa65535@live.com>
+# Copyright (C) 2016-2017 Ian Li <OpenSource@ianli.xyz>
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -7,35 +7,35 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=luci-app-shadowsocks
+PKG_NAME:=luci-app-shadowsocksr
 PKG_VERSION:=1.6.3
 PKG_RELEASE:=2
 
 PKG_LICENSE:=GPLv3
 PKG_LICENSE_FILES:=LICENSE
-PKG_MAINTAINER:=Jian Chang <aa65535@live.com>
+PKG_MAINTAINER:=Ian Li <OpenSource@ianli.xyz>
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/luci-app-shadowsocks/Default
+define Package/luci-app-shadowsocksr/Default
 	SECTION:=luci
 	CATEGORY:=LuCI
 	SUBMENU:=3. Applications
-	TITLE:=LuCI Support for shadowsocks-libev
+	TITLE:=LuCI Support for shadowsocksr-libev
 	PKGARCH:=all
 	DEPENDS:=+iptables $(1)
 endef
 
-Package/luci-app-shadowsocks = $(call Package/luci-app-shadowsocks/Default,+ipset)
-Package/luci-app-shadowsocks-without-ipset = $(call Package/luci-app-shadowsocks/Default)
+Package/luci-app-shadowsocksr = $(call Package/luci-app-shadowsocksr/Default,+ipset)
+Package/luci-app-shadowsocksr-without-ipset = $(call Package/luci-app-shadowsocksr/Default)
 
-define Package/luci-app-shadowsocks/description
-	LuCI Support for shadowsocks-libev.
+define Package/luci-app-shadowsocksr/description
+	LuCI Support for shadowsocksr-libev.
 endef
 
-Package/luci-app-shadowsocks-without-ipset/description = $(Package/luci-app-shadowsocks/description)
+Package/luci-app-shadowsocksr-without-ipset/description = $(Package/luci-app-shadowsocksr/description)
 
 define Build/Prepare
 	$(foreach po,$(wildcard ${CURDIR}/files/luci/i18n/*.po), \
@@ -48,7 +48,7 @@ endef
 define Build/Compile
 endef
 
-define Package/luci-app-shadowsocks/postinst
+define Package/luci-app-shadowsocksr/postinst
 #!/bin/sh
 if [ -z "$${IPKG_INSTROOT}" ]; then
 	if [ -f /etc/uci-defaults/luci-shadowsocks ]; then
@@ -60,15 +60,15 @@ fi
 exit 0
 endef
 
-Package/luci-app-shadowsocks-without-ipset/postinst = $(Package/luci-app-shadowsocks/postinst)
+Package/luci-app-shadowsocksr-without-ipset/postinst = $(Package/luci-app-shadowsocksr/postinst)
 
-define Package/luci-app-shadowsocks/conffiles
+define Package/luci-app-shadowsocksr/conffiles
 /etc/config/shadowsocks
 endef
 
-Package/luci-app-shadowsocks-without-ipset/conffiles = $(Package/luci-app-shadowsocks/conffiles)
+Package/luci-app-shadowsocksr-without-ipset/conffiles = $(Package/luci-app-shadowsocksr/conffiles)
 
-define Package/luci-app-shadowsocks/install
+define Package/luci-app-shadowsocksr/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/i18n
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/shadowsocks.*.lmo $(1)/usr/lib/lua/luci/i18n/
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/controller
@@ -87,7 +87,7 @@ define Package/luci-app-shadowsocks/install
 	$(INSTALL_BIN) ./files/root/usr/bin/ss-rules$(2) $(1)/usr/bin/ss-rules
 endef
 
-Package/luci-app-shadowsocks-without-ipset/install = $(call Package/luci-app-shadowsocks/install,$(1),-without-ipset)
+Package/luci-app-shadowsocksr-without-ipset/install = $(call Package/luci-app-shadowsocksr/install,$(1),-without-ipset)
 
-$(eval $(call BuildPackage,luci-app-shadowsocks))
-$(eval $(call BuildPackage,luci-app-shadowsocks-without-ipset))
+$(eval $(call BuildPackage,luci-app-shadowsocksr))
+$(eval $(call BuildPackage,luci-app-shadowsocksr-without-ipset))
