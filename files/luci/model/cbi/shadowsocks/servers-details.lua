@@ -1,4 +1,5 @@
 -- Copyright (C) 2016-2017 Jian Chang <aa65535@live.com>
+-- Copyright (C) 2017 Ian Li <OpenSource@ianli.xyz>
 -- Licensed to the public under the GNU General Public License v3.
 
 local m, s, o
@@ -65,8 +66,10 @@ s.addremove = false
 o = s:option(Value, "alias", translate("Alias(optional)"))
 o.rmempty = true
 
-o = s:option(Flag, "fast_open", translate("TCP Fast Open"))
-o.rmempty = false
+if not has_ssr_redir then
+	o = s:option(Flag, "fast_open", translate("TCP Fast Open"))
+	o.rmempty = false
+end
 
 o = s:option(Value, "server", translate("Server Address"))
 o.datatype = "ipaddr"
