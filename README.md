@@ -7,7 +7,7 @@ OpenWrt LuCI for ShadowsocksR-libev
 ---
 
 本软件包是 [shadowsocksr-libev][openwrt-shadowsocksr] 的 LuCI 控制界面,
-方便用户控制和使用「透明代理」「SOCKS5 代理」「端口转发」功能.  
+方便用户控制和使用「透明代理」「SOCKS5 代理」功能.  
 本软件包可兼容控制 shadowsocks-libev ，但不能和 luci-app-shadowsocksr 共存。  
 
 软件包文件结构:
@@ -51,7 +51,6 @@ OpenWrt LuCI for ShadowsocksR-libev
  ------------|------|-------------|---------|-----------------------------------
  `ss-redir`  | 是   | 透明代理    | 支持    | 需安装 `iptables-mod-tproxy`, `ip`
  `ss-local`  | 是   | SOCKS5 代理 | 支持    | 支持
- `ss-tunnel` | 是   | 端口转发    | 支持    | 支持
 
 注: 可执行文件在 `$PATH` 环境变量所表示的搜索路径中, 都可被正确调用.
 
@@ -84,7 +83,7 @@ make package/luci-app-shadowsocksr/compile V=99
 
  [release_badge]: https://img.shields.io/github/release/techotaku/luci-app-shadowsocksr.svg
  [release_url]: https://github.com/techotaku/luci-app-shadowsocksr/releases/latest
- [openwrt-shadowsocksr]: https://github.com/techotaku/ATGWWCRECITW/tree/master/shadowsocksr-lede
+ [openwrt-shadowsocksr]: https://github.com/techotaku/ATGWWCRECITW/tree/master/lede/ShadowsocksR-libev
  [openwrt-sdk]: https://wiki.openwrt.org/doc/howto/obtain.firmware.sdk
  [ss-rules]: https://github.com/shadowsocks/luci-app-shadowsocks/wiki/Instruction-of-ss-rules
  [Use-UCI-system]: https://github.com/shadowsocks/luci-app-shadowsocks/wiki/Use-UCI-system
