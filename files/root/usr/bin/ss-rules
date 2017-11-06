@@ -24,6 +24,8 @@ usage() {
 		    -d <target>             the default target of lan access control
 		    -a <lan_hosts>          mac addr of access control, need a prefix to
 		                            define proxy type
+		    -A <lan_hosts>          lan ip of access control, need a prefix to
+		                            define proxy type
 		    -e <extra_args>         extra arguments for iptables
 		    -o                      apply the rules to the OUTPUT chain
 		    -O                      apply the global rules to the OUTPUT chain
@@ -83,6 +85,7 @@ ipt_nat() {
 		$ipt -A SS_SPEC_WAN_DG -m set --match-set ss_spec_dst_sp dst -j RETURN
 		$ipt -A SS_SPEC_WAN_DG -p tcp $EXT_ARGS -j $OUTPUT
 		$ipt -I OUTPUT 1 -p tcp -j SS_SPEC_WAN_DG
+		gen_lan_host_output_acl
 	fi
 	return $?
 }
@@ -101,6 +104,26 @@ ipt_mangle() {
 	return $?
 }
 
+gen_lan_host_output_acl() {
+	ipt="iptables -t nat"
+	for host in $LAN_HOSTS; do
+		case "${host:0:1}" in
+			b|B)
+				src_mark_bp=`echo ${host:2} | awk -F "." '{printf ("0x%02x", $1)} {printf ("%02x", $2)} {printf ("%02x", $3)} {printf ("%02x\n", $4)}'`
+				$ipt -I SS_SPEC_WAN_DG -m mark --mark $src_mark_bp -j RETURN
+				;;
+			g|G)
+				src_mark_fw=`echo ${host:2} | awk -F "." '{printf ("0x%02x", $1)} {printf ("%02x", $2)} {printf ("%02x", $3)} {printf ("%02x\n", $4)}'`
+				$ipt -I SS_SPEC_WAN_DG -m mark --mark $src_mark_fw -j SS_SPEC_WAN_FW
+				;;
+			n|N)
+				src_mark_ac=`echo ${host:2} | awk -F "." '{printf ("0x%02x", $1)} {printf ("%02x", $2)} {printf ("%02x", $3)} {printf ("%02x\n", $4)}'`
+				$ipt -I SS_SPEC_WAN_DG -m mark --mark $src_mark_fw -j SS_SPEC_WAN_AC
+				;;
+		esac
+	done
+}
+
 export_ipt_rules() {
 	[ -n "$FWI" ] || return 0
 	cat <<-CAT >>$FWI
@@ -114,7 +137,7 @@ CAT
 }
 
 gen_lan_host_ipset_entry() {
-	for host in $LAN_HOSTS; do
+	for host in $LAN_MACS; do
 		case "${host:0:1}" in
 			b|B)
 				echo add ss_spec_src_bp ${host:2}
@@ -178,13 +201,20 @@ EOF
 }
 
 gen_prerouting_rules() {
-	[ -z "$IFNAMES" ] && echo -I PREROUTING 1 -p $1 -j SS_SPEC_LAN_DG
+	KP_INDEX=`iptables -t nat -L PREROUTING|tail -n +3|sed -n -e '/^KOOLPROXY/='`
+	if [ -n "$KP_INDEX" ]; then
+		let KP_INDEX+=1
+	else
+		let KP_INDEX=1
+	fi
+
+	[ -z "$IFNAMES" ] && echo -I PREROUTING $KP_INDEX -p $1 -j SS_SPEC_LAN_DG
 	for ifname in $IFNAMES; do
-		echo -I PREROUTING 1 -i $ifname -p $1 -j SS_SPEC_LAN_DG
+		echo -I PREROUTING $KP_INDEX -i $ifname -p $1 -j SS_SPEC_LAN_DG
 	done
 }
 
-while getopts ":s:l:S:L:B:b:W:w:I:d:a:e:oOuUfh" arg; do
+while getopts ":s:l:S:L:B:b:W:w:I:d:a:A:e:oOuUfh" arg; do
 	case "$arg" in
 		s)
 			server=$(for ip in $OPTARG; do echo $ip; done)
@@ -217,6 +247,9 @@ while getopts ":s:l:S:L:B:b:W:w:I:d:a:e:oOuUfh" arg; do
 			LAN_TARGET=$OPTARG
 			;;
 		a)
+			LAN_MACS=$OPTARG
+			;;
+		A)
 			LAN_HOSTS=$OPTARG
 			;;
 		e)

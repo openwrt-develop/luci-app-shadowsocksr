@@ -61,6 +61,9 @@ msgstr "全局代理"
 msgid "Global Settings"
 msgstr "全局设置"
 
+msgid "Host"
+msgstr "主机"
+
 msgid "LAN Hosts"
 msgstr "内网主机"
 

@@ -88,6 +88,15 @@ s.template = "cbi/tblsection"
 s.addremove = true
 s.anonymous = true
 
+o = s:option(Value, "host", translate("Host"))
+luci.ip.neighbors({family = 4}, function(n)
+	if n.reachable then
+		o:value(n.dest:string(), "%s (%s)" %{n.dest:string(), n.mac})
+	end
+end)
+o.datatype = "ip4addr"
+o.rmempty = false
+
 o = s:option(Value, "macaddr", translate("MAC-Address"))
 luci.sys.net.mac_hints(function(mac, name)
 	o:value(mac, "%s (%s)" %{mac, name})
