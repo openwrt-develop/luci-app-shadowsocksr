@@ -83,7 +83,7 @@ make package/luci-app-shadowsocksr/compile V=99
 
  [release_badge]: https://img.shields.io/github/release/techotaku/luci-app-shadowsocksr.svg
  [release_url]: https://github.com/techotaku/luci-app-shadowsocksr/releases/latest
- [openwrt-shadowsocksr]: https://github.com/techotaku/ATGWWCRECITW/tree/master/lede/ShadowsocksR-libev
+ [openwrt-shadowsocksr]: https://github.com/openwrt-develop/openwrt-shadowsocksr
  [openwrt-sdk]: https://wiki.openwrt.org/doc/howto/obtain.firmware.sdk
  [ss-rules]: https://github.com/shadowsocks/luci-app-shadowsocks/wiki/Instruction-of-ss-rules
  [Use-UCI-system]: https://github.com/shadowsocks/luci-app-shadowsocks/wiki/Use-UCI-system
