@@ -24,9 +24,7 @@ usage() {
 		    -w <wan_ips>            wan ip of will be forwarded
 		    -I <interface>          proxy only for the given interface
 		    -d <target>             the default target of lan access control
-		    -a <lan_hosts>          mac addr of access control, need a prefix to
-		                            define proxy type
-		    -A <lan_hosts>          lan ip of access control, need a prefix to
+		    -a <lan_hosts>          lan ip of access control, need a prefix to
 		                            define proxy type
 		    -e <extra_args>         extra arguments for iptables
 		    -o                      apply the rules to the OUTPUT chain
@@ -122,16 +120,16 @@ CAT
 }
 
 gen_lan_host_ipt_entry() {
-	for host in $LAN_MACS; do
+	for host in $LAN_HOSTS; do
 		case "${host:0:1}" in
 			b|B)
-				echo "1 -m mac --mac-source ${host:2} -j RETURN"
+				echo "1 -s ${host:2} -j RETURN"
 				;;
 			g|G)
-				echo "2 -m mac --mac-source ${host:2} -j SS_SPEC_WAN_FW"
+				echo "2 -s ${host:2} -j SS_SPEC_WAN_FW"
 				;;
 			n|N)
-				echo "3 -m mac --mac-source ${host:2} -j SS_SPEC_WAN_AC"
+				echo "3 -s ${host:2} -j SS_SPEC_WAN_AC"
 				;;
 		esac
 	done
@@ -232,9 +230,6 @@ while getopts ":s:l:S:L:B:b:W:w:I:d:a:A:e:oOuUfh" arg; do
 			LAN_TARGET=$OPTARG
 			;;
 		a)
-			LAN_MACS=$OPTARG
-			;;
-		A)
 			LAN_HOSTS=$OPTARG
 			;;
 		e)

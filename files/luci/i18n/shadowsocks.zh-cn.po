@@ -70,9 +70,6 @@ msgstr "内网主机"
 msgid "Local Port"
 msgstr "本地端口"
 
-msgid "MAC-Address"
-msgstr "MAC-地址"
-
 msgid "Main Server"
 msgstr "主服务器"
 
