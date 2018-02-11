@@ -116,7 +116,7 @@ gen_lan_host_output_acl() {
 				;;
 			n|N)
 				src_mark_ac=`echo ${host:2} | awk -F "." '{printf ("0x%02x", $1)} {printf ("%02x", $2)} {printf ("%02x", $3)} {printf ("%02x\n", $4)}'`
-				$ipt -I SS_SPEC_WAN_DG -m mark --mark $src_mark_fw -j SS_SPEC_WAN_AC
+				$ipt -I SS_SPEC_WAN_DG -m mark --mark $src_mark_ac -j SS_SPEC_WAN_AC
 				;;
 		esac
 	done
@@ -135,7 +135,7 @@ CAT
 }
 
 gen_lan_host_ipset_entry() {
-	for host in $LAN_MACS; do
+	for host in $LAN_HOSTS; do
 		case "${host:0:1}" in
 			b|B)
 				echo add ss_spec_src_bp ${host:2}
