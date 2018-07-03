@@ -86,6 +86,7 @@ define Package/luci-app-shadowsocksr/install
 	$(INSTALL_BIN) ./files/root/etc/uci-defaults/luci-shadowsocks $(1)/etc/uci-defaults/luci-shadowsocks
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) ./files/root/usr/bin/ss-rules$(2) $(1)/usr/bin/ss-rules
+	$(INSTALL_BIN) ./files/root/usr/bin/ss-domain $(1)/usr/bin/ss-domain
 endef
 
 Package/luci-app-shadowsocksr-without-ipset/install = $(call Package/luci-app-shadowsocksr/install,$(1),-without-ipset)

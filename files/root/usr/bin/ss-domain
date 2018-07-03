@@ -1,0 +1,33 @@
+#!/bin/sh
+
+restart=0
+for i in `uci show shadowsocks | grep alias | sed -r 's/.*\[(.*)\].*/\1/'`
+do
+	server=$(uci get shadowsocks.@servers[${i}].alias)
+        [ -z "$server" ] && continue
+
+	# exclude such server name (localhost, haproxy-*)
+	result=$(echo "${server}" | grep -e localhost -e haproxy)
+        [ -n "$result" ] && continue
+
+	#new_ip=$(nslookup "${server}" | tail -n +3 | awk -F" " '/^Address 1/{ print $3}')
+
+	new_ip=`ping -c 1 -w 1 $server | awk -F"[()]" '/PING/{print $2}'`
+	if [ -n "$new_ip" ]; then
+		logger -t shadowsocks "nslookup $server -> $new_ip"
+		old_ip=$(uci get shadowsocks.@servers[${i}].server)
+		if [ "$old_ip" != "$new_ip" ]; then
+			logger -t shadowsocks "detect $server ip address change ($old_ip -> $new_ip)"
+			restart=1
+			uci set shadowsocks.@servers[${i}].server=${new_ip}
+		fi
+	else
+		logger -t shadowsocks "nslookup $server fail"
+	fi
+done
+
+if [ $restart -eq 1 ]; then
+	logger -t shadowsocks "restart for server ip address change"
+        uci commit shadowsocks
+	/etc/init.d/shadowsocks restart
+fi

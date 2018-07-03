@@ -20,6 +20,7 @@ usage() {
 		    -b <wan_ips>            wan ip of will be bypassed
 		    -W <ip_list_file>       a file whose content is forwarded ip list
 		    -w <wan_ips>            wan ip of will be forwarded
+		    -p <ipset>              ipset will be forwarded
 		    -I <interface>          proxy only for the given interface
 		    -d <target>             the default target of lan access control
 		    -a <lan_hosts>          lan ip of access control, need a prefix to
@@ -50,6 +51,12 @@ flush_rules() {
 	for setname in $(ipset -n list | grep "ss_spec"); do
 		ipset destroy $setname 2>/dev/null
 	done
+	if [ -n "$WAN_FW_IPSET" ]; then
+		for setname in $(ipset -n list | grep "$WAN_FW_IPSET"); do
+			ipset flush $setname 2>/dev/null
+			ipset destroy $setname 2>/dev/null
+		done
+	fi
 	FWI=$(uci get firewall.shadowsocks.path 2>/dev/null)
 	[ -n "$FWI" ] && echo '# firewall include file' >$FWI
 	return 0
@@ -63,6 +70,7 @@ ipset_init() {
 		create ss_spec_dst_sp hash:net hashsize 64
 		create ss_spec_dst_bp hash:net hashsize 64
 		create ss_spec_dst_fw hash:net hashsize 64
+		$(gen_ipset_ext)
 		$(gen_lan_host_ipset_entry)
 		$(gen_special_purpose_ip | sed -e "s/^/add ss_spec_dst_sp /")
 		$(sed -e "s/^/add ss_spec_dst_bp /" ${WAN_BP_LIST:=/dev/null} 2>/dev/null)
@@ -71,6 +79,15 @@ ipset_init() {
 		$(for ip in $WAN_FW_IP; do echo "add ss_spec_dst_fw $ip"; done)
 EOF
 	return 0
+}
+
+gen_ipset_ext() {
+	if [ -n "$WAN_FW_IPSET" ]; then
+		setname=$(ipset -n list | grep -w "$WAN_FW_IPSET")
+		if [ -z "$setname" ]; then
+			echo create ${WAN_FW_IPSET} hash:ip timeout 3600
+		fi
+	fi
 }
 
 ipt_nat() {
@@ -190,12 +207,19 @@ include_ac_rules() {
 	-A SS_SPEC_LAN_AC -m set --match-set ss_spec_src_fw src -j SS_SPEC_WAN_FW
 	-A SS_SPEC_LAN_AC -m set --match-set ss_spec_src_ac src -j SS_SPEC_WAN_AC
 	-A SS_SPEC_LAN_AC -j ${LAN_TARGET:=SS_SPEC_WAN_AC}
+	$(gen_ipset_ext_rule)
 	-A SS_SPEC_WAN_AC -m set --match-set ss_spec_dst_fw dst -j SS_SPEC_WAN_FW
 	-A SS_SPEC_WAN_AC -m set --match-set ss_spec_dst_bp dst -j RETURN
 	-A SS_SPEC_WAN_AC -j SS_SPEC_WAN_FW
 	$(gen_prerouting_rules $protocol)
 	COMMIT
 EOF
+}
+
+gen_ipset_ext_rule() {
+	if [ -n "$WAN_FW_IPSET" ]; then
+		echo -A SS_SPEC_WAN_AC -m set --match-set ${WAN_FW_IPSET} dst -j SS_SPEC_WAN_FW
+	fi
 }
 
 gen_prerouting_rules() {
@@ -212,7 +236,13 @@ gen_prerouting_rules() {
 	done
 }
 
-while getopts ":s:l:S:L:B:b:W:w:I:d:a:A:e:oOuUfh" arg; do
+restart_dnsmasq() {
+	if [ -n "$WAN_FW_IPSET" ]; then
+		/etc/init.d/dnsmasq restart >/dev/null 2>&1
+	fi
+}
+
+while getopts ":s:l:S:L:B:b:W:w:p:I:d:a:A:e:oOuUfh" arg; do
 	case "$arg" in
 		s)
 			server=$(for ip in $OPTARG; do echo $ip; done)
@@ -237,6 +267,9 @@ while getopts ":s:l:S:L:B:b:W:w:I:d:a:A:e:oOuUfh" arg; do
 			;;
 		w)
 			WAN_FW_IP=$OPTARG
+			;;
+		p)
+			WAN_FW_IPSET=$OPTARG
 			;;
 		I)
 			IFNAMES=$OPTARG
@@ -282,7 +315,7 @@ elif [ "$TPROXY" = 2 ]; then
 	: ${LOCAL_PORT:?"You must assign a port for the udp relay server."}
 fi
 
-flush_rules && ipset_init && ipt_nat && ipt_mangle && export_ipt_rules
+flush_rules && ipset_init && ipt_nat && ipt_mangle && export_ipt_rules && restart_dnsmasq
 RET=$?
 [ "$RET" = 0 ] || loger 3 "Start failed!"
 exit $RET

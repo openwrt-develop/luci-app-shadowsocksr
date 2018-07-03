@@ -133,6 +133,7 @@ start_rules() {
 		-b "$(uci_get_by_type access_control wan_bp_ips)" \
 		-W "$(uci_get_by_type access_control wan_fw_list)" \
 		-w "$(uci_get_by_type access_control wan_fw_ips)" \
+		-p "$(uci_get_by_type access_control wan_fw_ipset)" \
 		-I "$(uci_get_by_type access_control lan_ifaces)" \
 		-d "$(uci_get_by_type access_control lan_target)" \
 		-a "$(config_foreach get_lan_hosts lan_hosts)" \

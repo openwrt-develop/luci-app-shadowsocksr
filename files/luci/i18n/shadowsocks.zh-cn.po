@@ -19,8 +19,8 @@ msgstr "被忽略IP列表"
 msgid "Bypassed IP"
 msgstr "额外被忽略IP"
 
-msgid "ChinaDNS CHNRoute"
-msgstr "ChinaDNS路由表"
+msgid "China Route List"
+msgstr "China路由表"
 
 msgid "Connection Timeout"
 msgstr "连接超时"
@@ -54,6 +54,9 @@ msgstr "走代理IP列表"
 
 msgid "Forwarded IP"
 msgstr "强制走代理IP"
+
+msgid "Forwarded IPSet"
+msgstr "走代理IPSet"
 
 msgid "Global"
 msgstr "全局代理"

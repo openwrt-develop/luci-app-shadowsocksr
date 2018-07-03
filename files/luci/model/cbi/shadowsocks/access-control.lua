@@ -5,7 +5,9 @@ local m, s, o
 local shadowsocks = "shadowsocks"
 local uci = luci.model.uci.cursor()
 local nwm = require("luci.model.network").init()
-local chnroute = uci:get_first("chinadns", "chinadns", "chnroute")
+local chnroute = uci:get_first("chnroute", "chnroute", "file")
+local mode = uci:get_first("domainlist", "domainlist", "mode")
+local ipset = uci:get_first("domainlist", "domainlist", "ipset")
 local lan_ifaces = {}
 local io = require "io"
 
@@ -49,7 +51,7 @@ s.anonymous = true
 
 o = s:option(Value, "wan_bp_list", translate("Bypassed IP List"))
 o:value("/dev/null", translate("NULL - As Global Proxy"))
-if chnroute then o:value(chnroute, translate("ChinaDNS CHNRoute")) end
+if chnroute then o:value(chnroute, translate("China Route List")) end
 o.datatype = "or(file, '/dev/null')"
 o.default = "/dev/null"
 o.rmempty = false
@@ -64,6 +66,18 @@ o.rmempty = true
 
 o = s:option(DynamicList, "wan_fw_ips", translate("Forwarded IP"))
 o.datatype = "ip4addr"
+o.rmempty = true
+
+o = s:option(ListValue, "wan_fw_ipset", translate("Forwarded IPSet"))
+o:value("", translate("None"))
+if mode then
+	if mode == "gfwlist" and ipset then
+		o:value(ipset, translate("GFW IPSet"))
+	end
+	if mode == "chinalist" and ipset then
+		o:value(ipset, translate("CHN IPSet"))
+	end
+end
 o.rmempty = true
 
 -- [[ Zone LAN ]]--
